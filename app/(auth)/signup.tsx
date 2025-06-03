@@ -1,7 +1,15 @@
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { Alert, StyleSheet, View } from 'react-native';
-import { Button, Text, TextInput } from 'react-native-ios-kit';
+import {
+  ActivityIndicator,
+  Alert,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { Title1 } from 'react-native-ios-kit';
 import { supabase } from '../../lib/supabase';
 
 export default function SignUp() {
@@ -25,7 +33,7 @@ export default function SignUp() {
 
   return (
     <View style={styles.container}>
-      <Text h1 style={styles.title}>Inscription</Text>
+      <Title1 style={styles.title}>Inscription</Title1>
 
       <TextInput
         placeholder="Email"
@@ -46,22 +54,17 @@ export default function SignUp() {
         clearButtonMode="while-editing"
       />
 
-      <Button
+      <TouchableOpacity
+        style={[styles.button, loading && styles.buttonDisabled]}
         onPress={handleSignUp}
-        loading={loading}
         disabled={loading}
-        style={styles.button}
       >
-        S’inscrire
-      </Button>
+        {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>S’inscrire</Text>}
+      </TouchableOpacity>
 
-      <Button
-        variant="link"
-        onPress={() => router.push('/(auth)/login')}
-        style={styles.link}
-      >
-        Déjà un compte ? Connecte-toi
-      </Button>
+      <TouchableOpacity onPress={() => router.push('/(auth)/login')}>
+        <Text style={styles.link}>Déjà un compte ? Connecte-toi</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -79,12 +82,29 @@ const styles = StyleSheet.create({
   },
   input: {
     marginBottom: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+    paddingVertical: 8,
+    paddingHorizontal: 5,
   },
   button: {
+    backgroundColor: '#007AFF',
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
     marginTop: 10,
+  },
+  buttonDisabled: {
+    opacity: 0.6,
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 16,
   },
   link: {
     marginTop: 30,
     textAlign: 'center',
+    color: '#007AFF',
   },
 });

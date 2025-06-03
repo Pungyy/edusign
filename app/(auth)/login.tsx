@@ -1,7 +1,15 @@
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { Alert, StyleSheet, TextInput, View } from 'react-native';
-import { Button, Title1 } from 'react-native-ios-kit'; // import composants spécifiques
+import {
+  ActivityIndicator,
+  Alert,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { Title1 } from 'react-native-ios-kit';
 import { supabase } from '../../lib/supabase';
 
 export default function Login() {
@@ -45,22 +53,17 @@ export default function Login() {
         clearButtonMode="while-editing"
       />
 
-      <Button
+      <TouchableOpacity
+        style={[styles.button, loading && styles.buttonDisabled]}
         onPress={handleLogin}
-        loading={loading}
         disabled={loading}
-        style={styles.link}
       >
-        Se connecter
-      </Button>
+        {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Se connecter</Text>}
+      </TouchableOpacity>
 
-      <Button
-        variant="link"
-        onPress={() => router.push('/(auth)/signup')}
-        style={styles.link}
-      >
-        Pas de compte ? Inscris-toi
-      </Button>
+      <TouchableOpacity onPress={() => router.push('/(auth)/signup')}>
+        <Text style={styles.link}>Pas de compte ? Inscris-toi</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -71,7 +74,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     padding: 20,
     justifyContent: 'center',
-    alignItems: 'center', // <-- Centre les enfants horizontalement
+    alignItems: 'center',
   },
   title: {
     marginBottom: 40,
@@ -83,14 +86,27 @@ const styles = StyleSheet.create({
     borderBottomColor: '#ccc',
     paddingVertical: 8,
     paddingHorizontal: 5,
-    width: '100%', // <-- Pour que l'input occupe toute la largeur dispo
+    width: '100%',
   },
   button: {
+    backgroundColor: '#007AFF',
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
     marginTop: 10,
-    width: '100%', // <-- Optionnel si tu veux que le bouton prenne toute la largeur aussi
+    width: '100%',
+  },
+  buttonDisabled: {
+    opacity: 0.6,
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 16,
   },
   link: {
     marginTop: 30,
     textAlign: 'center',
+    color: '#007AFF',
   },
 });
