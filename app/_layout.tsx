@@ -1,29 +1,49 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
-
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { Slot, useRouter, useSegments } from 'expo-router';
+import { useEffect, useState } from 'react';
+import { Text } from 'react-native';
+import { supabase } from '../lib/supabase';
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+  const segments = useSegments();
 
-  if (!loaded) {
-    // Async font loading only occurs in development.
-    return null;
-  }
+  useEffect(() => {
+    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+      const isLoggedIn = !!session;
+      const inAuthGroup = segments[0] === '(auth)';
 
-  return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
-  );
+      if (!isLoggedIn && !inAuthGroup) {
+        router.replace('/(auth)/login');
+      }
+
+      if (isLoggedIn && inAuthGroup) {
+        router.replace('/(tabs)');
+      }
+    });
+
+    // Initial session check
+    supabase.auth.getSession().then(({ data }) => {
+      const isLoggedIn = !!data.session;
+      const inAuthGroup = segments[0] === '(auth)';
+
+      if (!isLoggedIn && !inAuthGroup) {
+        router.replace('/(auth)/login');
+      }
+
+      if (isLoggedIn && inAuthGroup) {
+        router.replace('/(tabs)');
+      }
+
+      setLoading(false);
+    });
+
+    return () => {
+      listener?.subscription.unsubscribe();
+    };
+  }, [segments]);
+
+  if (loading) return <Text style={{ marginTop: 50, textAlign: 'center' }}>Chargement…</Text>;
+
+  return <Slot />;
 }
